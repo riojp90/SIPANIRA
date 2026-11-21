@@ -102,6 +102,12 @@
   /* KONTAK */
   .cta{background:var(--ink);color:var(--bg);border-radius:28px;padding:56px 48px;display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:space-between}
 
+  .nav-cta{white-space:nowrap;flex-shrink:0}
+  .brand img,.brand svg{flex-shrink:0}
+  footer .wrap span{min-width:0;flex:1 1 280px}
+  @media (max-width:420px){ .brand{font-size:17px;gap:8px} .nav{gap:12px;padding:12px 16px} .nav-cta{padding:0 16px} }
+  .ig{gap:10px;justify-content:flex-start;background:var(--dark2);color:var(--bg);font-size:15px}
+  .ig:hover{background:var(--amber-l);color:var(--ink)}
   footer{border-top:1px solid var(--line);padding:28px 24px;font-size:14px;color:var(--muted)}
   footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 
@@ -120,6 +126,8 @@
 <header>
   <div class="nav">
     <a class="brand" href="#beranda">
+      <img src="images/logo-unsoed.png" alt="Logo Universitas Jenderal Soedirman" width="36" height="36" style="width:36px;height:36px">
+      <span aria-hidden="true" style="width:1px;height:28px;background:var(--line)"></span>
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3Z" stroke="#2F5D46" stroke-width="2.2" stroke-linejoin="round"/><path d="M11 20.5a5 5 0 0 0 5 5" stroke="#9A4F12" stroke-width="2.2" stroke-linecap="round"/></svg>
       SIPANIRA
     </a>
@@ -151,14 +159,9 @@
       </div>
     </div>
     <div>
-      <!-- GANTI FOTO: simpan foto di folder "images" dengan nama prototipe.jpg,
-           lalu hapus blok <div class="ph-holder"> di bawah dan aktifkan baris <img> ini:
-      <img class="hero-img" src="images/prototipe.jpg" alt="Prototipe SIPANIRA di wadah uji nira">
-      -->
-      <div class="ph-holder" style="aspect-ratio:4/3">
-        <strong>[Foto prototipe SIPANIRA]</strong>
-        <span style="font-size:14px">images/prototipe.jpg</span>
-      </div>
+      <!-- FOTO SEMENTARA: ganti file images/prototipe.jpg dengan foto alat final
+           (nama file harus sama persis, resolusi minimal ±1200 px lebar). Kode tidak perlu diubah. -->
+      <img class="hero-img" src="images/prototipe.jpg" alt="Prototipe SIPANIRA: sensor pH di gelas uji, LCD, dan dashboard Blynk di laptop">
     </div>
   </div>
 </section>
@@ -287,8 +290,8 @@
     <iframe class="video" src="https://www.youtube-nocookie.com/embed/ID_VIDEO" title="Video produk SIPANIRA" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     -->
     <div class="ph-holder" style="aspect-ratio:16/9">
-      <strong>[Video produk SIPANIRA — maks. 5 menit]</strong>
-      <span style="font-size:14px">Sematkan dari YouTube setelah video selesai</span>
+      <strong>Video produk segera hadir</strong>
+      <span style="font-size:14px">Sedang dalam proses produksi</span>
     </div>
   </div>
 </section>
@@ -335,13 +338,21 @@
   <div class="wrap cta">
     <div style="flex:1 1 480px;display:flex;flex-direction:column;gap:12px">
       <h2 class="title" style="font-size:36px;line-height:1.2">Tertarik dengan SIPANIRA?</h2>
-      <p class="lead" style="font-size:17px;color:#CFD6CF">Hubungi tim untuk demo prototipe, diskusi riset, atau kerja sama dengan kelompok penderes.</p>
+      <p class="lead" style="font-size:17px;color:#CFD6CF">Hubungi tim lewat Instagram untuk demo prototipe, diskusi riset, atau kerja sama dengan kelompok penderes.</p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
-      <!-- GANTI: email tim -->
-      <a class="btn" href="mailto:email-tim@example.com" style="background:var(--amber-l);color:var(--ink);font-weight:700">[EMAIL TIM]</a>
-      <!-- GANTI: link Instagram / WhatsApp -->
-      <a href="#" style="color:#CFD6CF">[Instagram / WhatsApp tim]</a>
+    <div style="display:flex;flex-direction:column;gap:10px;flex:1 1 240px;max-width:360px">
+      <a class="btn ig" href="https://www.instagram.com/hanif.ma_/" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        Hanif · @hanif.ma_
+      </a>
+      <a class="btn ig" href="https://www.instagram.com/fidelaadpw_/" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        Fidela · @fidelaadpw_
+      </a>
+      <a class="btn ig" href="https://www.instagram.com/riooju/" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        Rio · @riooju
+      </a>
     </div>
   </div>
 </section>
@@ -350,7 +361,7 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Tim SIPANIRA · Teknik Elektro, Universitas Jenderal Soedirman</span>
+    <span style="display:flex;align-items:center;gap:10px"><img src="images/logo-unsoed.png" alt="" width="28" height="28" style="width:28px;height:28px">© 2026 Tim SIPANIRA · Teknik Elektro, Universitas Jenderal Soedirman</span>
     <span>Capstone Design — Sistem Pemantauan dan Pengawetan Nira Kelapa Otomatis Berbasis IoT</span>
   </div>
 </footer>
