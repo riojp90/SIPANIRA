@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIPANIRA — Pemantauan dan Pengawetan Nira Kelapa Otomatis</title>
+<meta name="description" content="SIPANIRA: sistem pemantauan pH nira kelapa dan penambahan kapur sirih otomatis berbasis ESP32 dan IoT. Capstone Design Teknik Elektro Universitas Jenderal Soedirman.">
+<!-- Ikon tab browser (tetes nira) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3Z' fill='%232F5D46'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5EF; --bg2:#EFEBDF; --ink:#1C2A22; --ink2:#3E4C43; --muted:#5C5A4E;
+    --green:#2F5D46; --green2:#3A6B53; --dark2:#26372D; --amber:#9A4F12; --amber-l:#E9B27A;
+    --line:#E2DDCF; --mint:#E4EEE7;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  a{color:var(--green)} a:hover{color:var(--ink)}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1200px;margin:0 auto}
+  .sec{padding:96px 24px;scroll-margin-top:72px}
+  .eyebrow{margin:0;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)}
+  .dark .eyebrow{color:var(--amber-l)}
+  .title{margin:0;font-size:42px;line-height:1.15;font-weight:800}
+  .lead{margin:0;font-size:18px;line-height:1.65;color:var(--ink2)}
+  .dark{background:var(--ink);color:var(--bg)} .dark .lead{color:#CFD6CF}
+  .head{display:flex;flex-direction:column;gap:16px;max-width:760px}
+  .stack{display:flex;flex-direction:column;gap:48px}
+  .row{display:flex;flex-wrap:wrap;gap:48px;align-items:center}
+  .row>*{flex:1 1 460px;min-width:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:12px}
+  .card h3{margin:0;font-size:20px;font-weight:700}
+  .card p{margin:0;font-size:16px;line-height:1.6;color:var(--ink2)}
+  .num{width:44px;height:44px;border-radius:12px;background:var(--mint);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
+  .btn-green{background:var(--green);color:#fff} .btn-green:hover{background:var(--ink);color:#fff}
+  .btn-line{border:1.5px solid var(--ink);color:var(--ink)} .btn-line:hover{background:var(--ink);color:var(--bg)}
+  .ph-holder{border-radius:24px;background:#E8E3D3;border:1.5px dashed #B9B19A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;padding:24px}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:10;background:rgba(247,245,239,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+  .nav{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:800;font-size:20px;letter-spacing:.04em}
+  .nav-links{display:flex;gap:28px;font-size:15px;font-weight:500}
+  .nav-links a{text-decoration:none}
+  .nav-cta{min-height:44px;font-size:15px;background:var(--ink);color:var(--bg)} .nav-cta:hover{background:var(--green);color:#fff}
+
+  /* HERO */
+  .hero h1{margin:0;font-size:60px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+  .hero .lead{font-size:19px;max-width:560px}
+  .hero-text{display:flex;flex-direction:column;gap:24px}
+  .hero-img{aspect-ratio:4/3;width:100%;object-fit:cover;border-radius:24px}
+
+  /* MASALAH */
+  .stat{background:var(--dark2);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:10px}
+  .stat b{font-size:44px;font-weight:800;color:var(--amber-l);line-height:1.1}
+  .stat span{font-size:17px;line-height:1.5}
+  .stat small{font-size:13px;color:#A9B5AC}
+
+  /* SIMULASI */
+  .sim-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .sim-btn{min-height:44px;padding:0 18px;border-radius:999px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid #B9B19A}
+  .sim-btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .panel{background:#fff;border-radius:24px;padding:32px;border:1px solid var(--line);display:flex;flex-direction:column;gap:24px}
+  .ph-big{font-size:56px;font-weight:800;line-height:1}
+  .badge{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;font-weight:700;font-size:14px}
+  .badge.warn{background:#FBE7D3;color:#7A3D0C} .badge.ok{background:#DDEEE3;color:#1F4A34} .badge.info{background:#DFE8F5;color:#24406B}
+  .scale{position:relative;height:14px;display:flex}
+  .scale div{height:14px}
+  .marker{position:absolute;top:-6px;width:4px;height:26px;margin-left:-2px;border-radius:2px;background:var(--ink);transition:left .4s ease}
+  .scale-lbl{position:relative;height:20px;font-size:13px;color:var(--muted)}
+  .scale-lbl span{position:absolute;transform:translateX(-50%)}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+  .steps li{display:flex;gap:12px;align-items:flex-start;font-size:16px;counter-increment:s}
+  .steps li::before{content:counter(s);flex:0 0 26px;height:26px;border-radius:999px;background:var(--mint);color:var(--green);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .act{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .act div{background:var(--bg);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;font-size:15px}
+
+  /* TEKNOLOGI */
+  .vpin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .vpin div{background:var(--dark2);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px}
+  .vpin small{font-size:13px;color:#A9B5AC} .vpin em{font-style:normal;font-size:14px;color:#CFD6CF}
+  .comp{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #EEEAE0;font-size:16px}
+  .comp:last-child{border-bottom:0} .comp span:last-child{color:var(--ink2);text-align:right}
+
+  /* VIDEO */
+  .video{aspect-ratio:16/9;width:100%;border:0;border-radius:24px}
+
+  /* MITRA */
+  .mitra{background:var(--green);color:#fff} .mitra .lead{color:#E3ECE6} .mitra .eyebrow{color:#F1CFA6}
+  .mstat{background:var(--green2);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:6px}
+  .mstat b{font-size:36px;font-weight:800} .mstat span{font-size:15px;color:#E3ECE6}
+
+  /* TIM */
+  .avatar{width:56px;height:56px;border-radius:999px;background:var(--mint);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green)}
+
+  /* KONTAK */
+  .cta{background:var(--ink);color:var(--bg);border-radius:28px;padding:56px 48px;display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:space-between}
+
+  footer{border-top:1px solid var(--line);padding:28px 24px;font-size:14px;color:var(--muted)}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+
+  @media (max-width:860px){ .nav-links{display:none} }
+  @media (max-width:760px){
+    .sec{padding:64px 20px}
+    .hero h1{font-size:40px}
+    .title{font-size:30px}
+    .cta{padding:40px 24px}
+    .ph-big{font-size:44px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="#beranda">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3C16 3 6 14 6 20a10 10 0 0 0 20 0C26 14 16 3 16 3Z" stroke="#2F5D46" stroke-width="2.2" stroke-linejoin="round"/><path d="M11 20.5a5 5 0 0 0 5 5" stroke="#9A4F12" stroke-width="2.2" stroke-linecap="round"/></svg>
+      SIPANIRA
+    </a>
+    <nav class="nav-links" aria-label="Navigasi utama">
+      <a href="#masalah">Masalah</a>
+      <a href="#cara-kerja">Cara Kerja</a>
+      <a href="#simulasi">Simulasi</a>
+      <a href="#teknologi">Teknologi</a>
+      <a href="#video">Video</a>
+      <a href="#mitra">Mitra</a>
+      <a href="#tim">Tim</a>
+    </nav>
+    <a class="btn nav-cta" href="#kontak">Hubungi Tim</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== HERO ===== -->
+<section id="beranda" class="sec hero">
+  <div class="wrap row">
+    <div class="hero-text">
+      <p class="eyebrow">Capstone Design · Teknik Elektro Unsoed · Smart Agriculture</p>
+      <h1>Menjaga mutu nira kelapa sejak masih di wadah penampung.</h1>
+      <p class="lead">SIPANIRA memantau keasaman (pH) dan ketinggian nira secara real-time, lalu menambahkan kapur sirih (Ca(OH)₂) secara otomatis saat nira mulai terlalu asam — tanpa penderes harus terus mengawasi.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn btn-green" href="#cara-kerja">Lihat cara kerjanya</a>
+        <a class="btn btn-line" href="#simulasi">Coba simulasi pH</a>
+      </div>
+    </div>
+    <div>
+      <!-- GANTI FOTO: simpan foto di folder "images" dengan nama prototipe.jpg,
+           lalu hapus blok <div class="ph-holder"> di bawah dan aktifkan baris <img> ini:
+      <img class="hero-img" src="images/prototipe.jpg" alt="Prototipe SIPANIRA di wadah uji nira">
+      -->
+      <div class="ph-holder" style="aspect-ratio:4/3">
+        <strong>[Foto prototipe SIPANIRA]</strong>
+        <span style="font-size:14px">images/prototipe.jpg</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MASALAH ===== -->
+<section id="masalah" class="sec dark">
+  <div class="wrap stack">
+    <div class="head">
+      <p class="eyebrow">Masalahnya</p>
+      <h2 class="title">Nira terus berfermentasi selama tertampung di pohon — dan tidak ada yang memantaunya.</h2>
+      <p class="lead">Khamir mengubah gula menjadi etanol, lalu bakteri <em>Acetobacter</em> mengubahnya menjadi asam asetat. pH nira turun, mutu bahan baku gula kelapa ikut turun. Pengawet kapur sirih biasanya diberikan sekali di awal dengan dosis tetap, padahal laju keasaman terus berubah.</p>
+    </div>
+    <div class="grid">
+      <div class="stat"><b>±12 jam</b><span>Lama nira tertampung di wadah selama penyadapan, umumnya tanpa pemantauan (“black box”).</span><small>Krisdiarto &amp; Supriyanto, 2022</small></div>
+      <div class="stat"><b>7,2 → 4,7</b><span>Penurunan pH nira kelapa segar setelah sekitar 12 jam fermentasi pada kondisi lingkungan.</span><small>Gopal dkk., 2021</small></div>
+      <div class="stat"><b>Dosis tetap</b><span>Pengawet diberikan sekali di awal, sehingga efektivitasnya menurun seiring lamanya nira disimpan.</span><small>Adisetya &amp; Krisdiarto, 2022</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CARA KERJA ===== -->
+<section id="cara-kerja" class="sec">
+  <div class="wrap stack">
+    <div class="head">
+      <p class="eyebrow">Cara kerja</p>
+      <h2 class="title">Ukur, bandingkan, koreksi, ulangi.</h2>
+      <p class="lead">ESP32 membandingkan pH nira dengan dua ambang: <strong>pH 5</strong> (batas bawah) dan <strong>pH 6,5</strong> (batas atas). Siklus koreksi berjalan sampai pH kembali ke rentang aman.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><span class="num">1</span><h3>Ukur</h3><p>Sensor pH PH-4502C membaca keasaman, sensor ultrasonik HC-SR04 membaca ketinggian permukaan nira.</p></div>
+      <div class="card"><span class="num">2</span><h3>Tuang kapur sirih</h3><p>Jika pH di bawah 5, motor servo membuka dispenser dan menuangkan Ca(OH)₂ satu kali.</p></div>
+      <div class="card"><span class="num">3</span><h3>Aduk</h3><p>Motor DC lewat driver L298N memutar batang pengaduk agar kapur sirih tercampur merata.</p></div>
+      <div class="card"><span class="num">4</span><h3>Stabilisasi &amp; baca ulang</h3><p>Setelah jeda stabilisasi, pH dibaca lagi. Belum aman? Siklus diulang. Di atas 6,5? Dosing ditahan.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SIMULASI ===== -->
+<section id="simulasi" class="sec" style="background:var(--bg2)">
+  <div class="wrap row" style="align-items:flex-start">
+    <div class="head" style="flex:1 1 380px">
+      <p class="eyebrow">Simulasi logika</p>
+      <h2 class="title">Apa yang dilakukan SIPANIRA pada pH tertentu?</h2>
+      <p class="lead">Pilih kondisi nira untuk melihat keputusan sistem. Ini ilustrasi logika kendali, bukan data pengukuran.</p>
+      <div class="sim-btns" role="group" aria-label="Pilih kondisi pH">
+        <button type="button" class="sim-btn" data-key="low" aria-pressed="true">Nira terlalu asam (pH 4,6)</button>
+        <button type="button" class="sim-btn" data-key="safe" aria-pressed="false">Rentang aman (pH 5,8)</button>
+        <button type="button" class="sim-btn" data-key="high" aria-pressed="false">Di atas ambang atas (pH 6,9)</button>
+      </div>
+    </div>
+    <div class="panel" style="flex:1 1 520px" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:14px;color:var(--muted);font-weight:600">pH terbaca</span>
+          <span class="ph-big" id="sim-ph">4,6</span>
+        </div>
+        <span class="badge warn" id="sim-badge">Di bawah ambang bawah</span>
+      </div>
+      <div>
+        <div class="scale" aria-hidden="true">
+          <div style="flex:25;background:#E9B27A;border-radius:999px 0 0 999px"></div>
+          <div style="flex:37.5;background:#8FB89D"></div>
+          <div style="flex:37.5;background:#9BB3D4;border-radius:0 999px 999px 0"></div>
+          <span class="marker" id="sim-marker" style="left:15%"></span>
+        </div>
+        <div class="scale-lbl" aria-hidden="true" style="margin-top:6px">
+          <span style="left:0;transform:none">pH 4</span><span style="left:25%">5</span><span style="left:62.5%">6,5</span><span style="right:0;transform:none">8</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:14px;color:var(--muted);font-weight:600">Keputusan sistem</span>
+        <ol class="steps" id="sim-steps"></ol>
+      </div>
+      <div class="act">
+        <div><span>Motor servo</span><b id="sim-servo">ON</b></div>
+        <div><span>Motor DC</span><b id="sim-dc">ON</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TEKNOLOGI ===== -->
+<section id="teknologi" class="sec">
+  <div class="wrap stack">
+    <div class="head">
+      <p class="eyebrow">Teknologi</p>
+      <h2 class="title">Dipantau di lokasi, terlihat dari mana saja.</h2>
+      <p class="lead">Data tampil di LCD 16×2 pada kotak kontrol dan dikirim lewat Wi-Fi ke dashboard Blynk. Jika koneksi terputus, kendali pH tetap berjalan secara lokal.</p>
+    </div>
+    <div class="row" style="gap:24px;align-items:stretch">
+      <div class="dark" style="border-radius:24px;padding:32px;display:flex;flex-direction:column;gap:20px">
+        <h3 style="margin:0;font-size:20px">Dashboard Blynk</h3>
+        <div class="vpin">
+          <div><small>V1</small><b>Nilai pH nira</b><em>Gauge + grafik</em></div>
+          <div><small>V2</small><b>Ketinggian nira</b><em>Gauge + grafik (cm)</em></div>
+          <div><small>V3</small><b>Status motor DC</b><em>Indikator ON/OFF</em></div>
+          <div><small>V4</small><b>Status motor servo</b><em>Indikator ON/OFF</em></div>
+        </div>
+        <!-- GANTI: <img src="images/blynk.jpg" alt="Tampilan dashboard Blynk SIPANIRA" style="border-radius:14px"> -->
+        <div class="ph-holder" style="border-radius:14px;background:transparent;border-color:#4E6355;color:#CFD6CF">[Tangkapan layar dashboard Blynk] · images/blynk.jpg</div>
+      </div>
+      <div class="card" style="border-radius:24px;padding:32px">
+        <h3>Komponen utama</h3>
+        <div>
+          <div class="comp"><b>ESP32</b><span>Pengendali utama + Wi-Fi</span></div>
+          <div class="comp"><b>PH-4502C</b><span>Sensor keasaman nira</span></div>
+          <div class="comp"><b>HC-SR04</b><span>Sensor ketinggian nira</span></div>
+          <div class="comp"><b>Servo MG996R</b><span>Dispenser kapur sirih</span></div>
+          <div class="comp"><b>Motor DC TT + L298N</b><span>Pengaduk nira</span></div>
+          <div class="comp"><b>LCD 16×2 I2C</b><span>Tampilan lokal</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VIDEO ===== -->
+<section id="video" class="sec" style="padding-top:0">
+  <div class="wrap stack" style="gap:32px">
+    <div class="head">
+      <p class="eyebrow">Video produk</p>
+      <h2 class="title">Lihat SIPANIRA bekerja.</h2>
+    </div>
+    <!-- GANTI VIDEO: upload video ke YouTube, salin ID-nya (bagian setelah "v=" di link),
+         lalu hapus blok ph-holder dan aktifkan iframe ini dengan ID tersebut:
+    <iframe class="video" src="https://www.youtube-nocookie.com/embed/ID_VIDEO" title="Video produk SIPANIRA" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    -->
+    <div class="ph-holder" style="aspect-ratio:16/9">
+      <strong>[Video produk SIPANIRA — maks. 5 menit]</strong>
+      <span style="font-size:14px">Sematkan dari YouTube setelah video selesai</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MITRA ===== -->
+<section id="mitra" class="sec mitra">
+  <div class="wrap row">
+    <div class="head">
+      <p class="eyebrow">Mitra</p>
+      <h2 class="title">KUB Central Agro Lestari</h2>
+      <p class="lead">Kelompok usaha pengolah gula kelapa organik di Desa Bumisari, Kecamatan Bojongsari, Kabupaten Purbalingga. Masalah mutu nira yang mereka hadapi menjadi titik awal perancangan SIPANIRA.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+      <div class="mstat"><b>10.339</b><span>pohon kelapa deres</span></div>
+      <div class="mstat"><b>361</b><span>penderes binaan</span></div>
+      <div class="mstat"><b>164 ha</b><span>lahan perkebunan</span></div>
+      <div class="mstat"><b>4</b><span>lini produk gula kelapa organik</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TIM ===== -->
+<section id="tim" class="sec">
+  <div class="wrap stack" style="gap:40px">
+    <div class="head">
+      <p class="eyebrow">Tim</p>
+      <h2 class="title">Di balik SIPANIRA</h2>
+      <p class="lead">Mahasiswa Teknik Elektro, Fakultas Teknik, Universitas Jenderal Soedirman, angkatan 2023.</p>
+    </div>
+    <div class="grid">
+      <div class="card" style="gap:8px"><span class="avatar">HM</span><b style="font-size:19px">Hanif Muhamad Anam</b><p>Perancangan perangkat keras</p><small style="color:var(--muted)">H1A023013 · Tenaga Listrik</small></div>
+      <div class="card" style="gap:8px"><span class="avatar">FD</span><b style="font-size:19px">Fidela Desta Paramesti Waluyo</b><p>Desain sistem &amp; flowchart</p><small style="color:var(--muted)">H1A023021 · Tenaga Listrik</small></div>
+      <div class="card" style="gap:8px"><span class="avatar">RJ</span><b style="font-size:19px">Rio Juharno Putra</b><p>Perancangan perangkat lunak</p><small style="color:var(--muted)">H1A023090 · Instrumentasi dan Kendali</small></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px 32px;font-size:15px;color:var(--ink2)">
+      <span><b style="color:var(--ink)">Pembimbing I:</b> Dr. Mulki Indana Zulfa, ST., MT.</span>
+      <span><b style="color:var(--ink)">Pembimbing II:</b> Ir. Iwan Setiawan, S.T., M.T.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KONTAK ===== -->
+<section id="kontak" class="sec" style="padding-top:0">
+  <div class="wrap cta">
+    <div style="flex:1 1 480px;display:flex;flex-direction:column;gap:12px">
+      <h2 class="title" style="font-size:36px;line-height:1.2">Tertarik dengan SIPANIRA?</h2>
+      <p class="lead" style="font-size:17px;color:#CFD6CF">Hubungi tim untuk demo prototipe, diskusi riset, atau kerja sama dengan kelompok penderes.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+      <!-- GANTI: email tim -->
+      <a class="btn" href="mailto:email-tim@example.com" style="background:var(--amber-l);color:var(--ink);font-weight:700">[EMAIL TIM]</a>
+      <!-- GANTI: link Instagram / WhatsApp -->
+      <a href="#" style="color:#CFD6CF">[Instagram / WhatsApp tim]</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Tim SIPANIRA · Teknik Elektro, Universitas Jenderal Soedirman</span>
+    <span>Capstone Design — Sistem Pemantauan dan Pengawetan Nira Kelapa Otomatis Berbasis IoT</span>
+  </div>
+</footer>
+
+<script>
+  // Data simulasi logika kendali (ambang pH 5 dan 6,5 sesuai DCP-200/300)
+  var DATA = {
+    low:  { ph:'4,6', pos:15,   status:'Di bawah ambang bawah', tone:'warn', servo:'ON',  dc:'ON',
+            steps:['Servo menuangkan Ca(OH)₂ satu kali','Motor DC mengaduk campuran nira','Sistem menunggu stabilisasi, lalu membaca pH ulang','Siklus diulang sampai pH masuk rentang 5–6,5'] },
+    safe: { ph:'5,8', pos:45,   status:'pH aman', tone:'ok', servo:'OFF', dc:'OFF',
+            steps:['Tidak ada dosing','Status “pH Aman” dikirim ke Blynk dan tampil di LCD','Pemantauan berkala dilanjutkan'] },
+    high: { ph:'6,9', pos:72.5, status:'pH terlalu tinggi', tone:'info', servo:'OFF', dc:'OFF',
+            steps:['Dosing ditahan untuk mencegah kapur sirih berlebih','Status “pH Terlalu Tinggi” dikirim ke Blynk','Pemantauan berkala dilanjutkan'] }
+  };
+  function show(key){
+    var d = DATA[key];
+    document.getElementById('sim-ph').textContent = d.ph;
+    var b = document.getElementById('sim-badge');
+    b.textContent = d.status; b.className = 'badge ' + d.tone;
+    document.getElementById('sim-marker').style.left = d.pos + '%';
+    document.getElementById('sim-servo').textContent = d.servo;
+    document.getElementById('sim-dc').textContent = d.dc;
+    var ol = document.getElementById('sim-steps'); ol.innerHTML = '';
+    d.steps.forEach(function(t){ var li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+    document.querySelectorAll('.sim-btn').forEach(function(btn){
+      btn.setAttribute('aria-pressed', btn.dataset.key === key ? 'true' : 'false');
+    });
+  }
+  document.querySelectorAll('.sim-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ show(btn.dataset.key); });
+  });
+  show('low');
+</script>
+</body>
+</html>
